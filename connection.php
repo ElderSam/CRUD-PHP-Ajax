@@ -16,9 +16,8 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 } catch(PDOException $e){
 echo  'ERROR: ' . $e->getMessage();
-//header('Location: index.php?bd=BDerror');
-//echo "<script> window.location = 'index.php?bd=error'; </script>"; //volta para a página inicial com mensagem de erro
-echo "<script> alert('ocorreu um erro com o banco de dados');</script>";    
+echo "<script> window.location = 'connection.php?bd=error'; </script>"; //volta para a página inicial com mensagem de erro
+//echo "<script> alert('ocorreu um erro com o banco de dados');</script>";    
 
 }
 

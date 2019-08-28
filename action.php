@@ -15,11 +15,14 @@
         $query = $pdo->prepare($sql);
         $query->execute();
         $row = $query->fetch(PDO::FETCH_OBJ); //pega apenas uma linha (fetch)
-        
-        echo "<p>";   
-        echo $row->comment_content;
-     
-        echo "</p>";
-
+        if($row){
+            $link_delete = "<a class='deleteData' href='delete.php?deleteId=".$r->comment_id."'>Delete</a>";
+            echo "<p>";
+            echo $r->comment_content . " | $link_delete<br/>";    
+            echo "</p>";
+        }
+        else{
+            echo "Error Message Data <br/>" . $pdo->errorInfo();
+        }
     }
 ?>
