@@ -23,7 +23,7 @@
     <!--script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script-->
     
-    <script type="text/javascript" src="js/script.js"></script>
+    <!--script type="text/javascript" src="js/script.js"></script-->
     <style>
     body{
         margin: 0;
@@ -42,14 +42,14 @@
 <body>
     <section>
         <div class="cadastro">
-            <form id="form-msg" action="action.php" method="POST" enctype="multipart/form-data">
-                <fieldset>
-                    <p>
-                        <h1> digite seu comentário: </h1>
-                        <textarea name="mensagem" required=""></textarea>
-                    </p>
-                    <input type="submit" value="enviar">
-                </fieldset>
+            <form action="action.php" method="POST">
+                
+                   
+                        <input type="text" name="mensagem" required=""/>
+                      
+                   
+                    <input type="submit" name="submit" value="submit"/>
+              
             </form>
         </div>
 
@@ -63,7 +63,22 @@
     <script>
         $(document).ready(function(){ //quando a página estiver 'baixada', pronta
             loadData(); //carrega os dados
-        });
+
+            $('form').on('submit', function(e){ //ao enviar formulário
+                e.preventDefault();
+                $.ajax({
+                    type: $(this).attr('method'), //'POST'
+                    url: $(this).attr('action'), //destino dos dados (ex: action.php)
+                    data: $(this).serialize(), //data: {    mensagem: $('input[name=mensagem]').val()//conteúdo do campo input do formulário    } 
+                    success:function(){
+                        loadData();
+                        resetForm();
+                    }
+                }); 
+            })
+        })
+
+
 
         function loadData(){
             $.get('data.php', function(data){
@@ -78,14 +93,22 @@
                         success:function(){
                             loadData(); //recarrega os dados toda vez que deletar
                         }
-                    })
-                })
+                    });
+                });
+
+                //para atualizar dados
+                $('.updateData').click(function(atualiza){
+                    atualiza.preventDefault();
+                    $('[name=mensagem]').val($(this).attr('comment_content'));
+                    $('form').attr('action', $(this).attr('href'));
+                });
             })
         }
 
         function resetForm(){
-            $('[type=text').val(''); //esvazia o input
+            $('[type=text]').val(''); //esvazia o input
             $('[name=mensagem]').focus(); //coloca o cursos do mouse na caixa de texto
+            $('form').attr('action', 'action.php');
         }
 
 

@@ -1,6 +1,6 @@
 $(function(){
 
-    $('form#form-msg').submit(function(e){ //ao enviar formulário
+    $('form').submit(function(e){ //ao enviar formulário
         e.preventDefault();
         $.ajax({
             type: $(this).attr('method'), //'POST'
@@ -8,12 +8,10 @@ $(function(){
             data: $(this).serialize(), //data: {    mensagem: $('textarea[name=mensagem]').val()//conteúdo do campo textarea do formulário    } 
             success:function(){
                 loadData();
+                resetForm();
             }
-        }); /*.done(function(e) {
-                $('div#comments').append(e); //mostra o conteúdo do registro salvo no banco recentemente
-                $('textarea[name=mensagem]').val('') //esvazia o input
-              //alert( 'Data Saved: ' + msg );*/
-        })
+        }); 
+    })
 
-       // return false;
+      
     });

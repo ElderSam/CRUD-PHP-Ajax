@@ -16,9 +16,11 @@
         $query->execute();
         $row = $query->fetch(PDO::FETCH_OBJ); //pega apenas uma linha (fetch)
         if($row){
-            $link_delete = "<a class='deleteData' href='delete.php?deleteId=".$r->comment_id."'>Delete</a>";
+            $link_delete = "<a class='deleteData' href='delete.php?deleteId=". $row->comment_id."'>Delete</a>";
+            $link_update = "<a class='updateData'  href='update.php?updateId=". $row->comment_id. "' comment_content='" . $row->comment_content . "'>Update</a>";
+           
             echo "<p>";
-            echo $r->comment_content . " | $link_delete<br/>";    
+            echo "$row->comment_content  | $link_delete | $link_update <br/>";    
             echo "</p>";
         }
         else{

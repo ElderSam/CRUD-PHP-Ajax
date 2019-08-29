@@ -8,7 +8,10 @@ if(isset($_GET['deleteId'])){
     $del = $pdo->prepare($sql);
     $del->execute(array($deleteId));
     
-    if(!$del){
+    if($del){
+        echo "Data Deleted!";
+    }
+    else{
         echo "Erro ao tentar excluir, possivelmente tem algo errado com a conexão com o banco de dados";
     }
 }
