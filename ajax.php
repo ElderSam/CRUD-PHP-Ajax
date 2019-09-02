@@ -1,6 +1,6 @@
 <?php
 
-    include_once 'connection.php';
+    
 	if (isset($_POST['key'])) {
 
 		$conn = new mysqli('localhost', 'root', '', 'test');
