@@ -1,57 +1,134 @@
-$(document).ready(function(){ //quando a página estiver 'baixada', pronta
-    loadData(); //carrega os dados
+$(document).ready(function() {
+    $("#addNew").on('click', function () { //ao clicar para adicionar um novo
+       $("#tableManager").modal('show');
+    });
 
-   
-    $('form').on('submit', function(e){ //ao enviar formulário
-        //$('#addModal').modal('hide');
-        
-        e.preventDefault();
+    $("#tableManager").on('hidden.bs.modal', function () { //quando esconde o modal
+       $("#showContent").fadeOut();
+       $("#editContent").fadeIn();
+       $("#editRowID").val(0);
+       $("#longDesc").val("");
+       $("#shortDesc").val("");
+       $("#countryName").val("");
+       $("#closeBtn").fadeOut();
+       $("#manageBtn").attr('value', 'Add New').attr('onclick', "manageData('addNew')").fadeIn();
+    });
+
+    getExistingData(0, 50);
+});
+
+function deleteRow(rowID) {  /* Excluir um registro ------------------------------------------------------------------- */
+    if (confirm('Are you sure??')) {
         $.ajax({
-            type: $(this).attr('method'), //'POST'
-            url: $(this).attr('action'), //destino dos dados (ex: action.php)
-            data: $(this).serialize(), //data: {    mensagem: $('input[name=mensagem]').val()//conteúdo do campo input do formulário    } 
-            success:function(){
-                loadData();      
-                resetForm();
-                $('.modal').modal('hide');
-                
+            url: 'ajax.php',
+            method: 'POST',
+            dataType: 'text',
+            data: {
+                key: 'deleteRow',
+                rowID: rowID
+            }, success: function (response) {
+                $("#country_"+rowID).parent().remove();
+                alert(response);
             }
-        }); 
-    })
-})
-
-
-
-function loadData(){
-    $.get('data.php', function(data){
-
-        $('#comments').html(data); //mostra o conteúdo retornado na página
-
-        //para atualizar dados
-        $('.updateData').click(function(atualiza){
-          
-            atualiza.preventDefault();
-            $('[name=mensagem]').val($(this).attr('comment_content'));
-            $('form').attr('action', $(this).attr('href'));
         });
-
-                
-        //para deletar dados
-        $('.deleteData').click(function(deleta){
-
-            deleta.preventDefault();
-            $('[name=commentDelete]').val($(this).attr('comment_content')); //mostra qual ele está tentando excluir
-            $('form').attr('action', $(this).attr('href'));
-        });
-
-
-    })
+    }
 }
 
-function resetForm(){
-    $('[type=text]').val(''); //esvazia o input
-    $('[name=mensagem]').focus(); //coloca o cursos do mouse na caixa de texto
-    $('form').attr('action', 'action.php');
+function viewORedit(rowID, type) { /* para ver ou editar um registro (esta função apenas carrega os dados) ------------ */
+    $.ajax({
+        url: 'ajax.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            key: 'getRowData',
+            rowID: rowID
+        }, success: function (response) {
+            if (type == "view") { //se for apenas para ver os detalhes
+                $("#showContent").fadeIn();
+                $("#editContent").fadeOut();
+                $("#longDescView").html(response.longDesc);
+                $("#shortDescView").html(response.shortDesc);
+                $("#manageBtn").fadeOut();
+                $("#closeBtn").fadeIn();
+            } else { //se for para editar
+                $("#editContent").fadeIn();
+                $("#editRowID").val(rowID);
+                $("#showContent").fadeOut();
+                $("#longDesc").val(response.longDesc);
+                $("#shortDesc").val(response.shortDesc);
+                $("#countryName").val(response.countryName);
+                $("#closeBtn").fadeOut();
+                $("#manageBtn").attr('value', 'Save Changes').attr('onclick', "manageData('updateRow')");
+            }
+
+            $(".modal-title").html(response.countryName);
+            $("#tableManager").modal('show');
+        }
+    });
 }
 
+function getExistingData(start, limit) {
+    $.ajax({
+        url: 'ajax.php',
+        method: 'POST',
+        dataType: 'text',
+        data: {
+            key: 'getExistingData',
+            start: start,
+            limit: limit
+        }, success: function (response) {
+            if (response != "reachedMax") {
+                $('tbody').append(response);
+                start += limit;
+                getExistingData(start, limit);
+            } else
+                $(".table").DataTable();
+        }
+    });
+}
 
+function manageData(key) {
+    var name = $("#countryName");
+    var shortDesc = $("#shortDesc");
+    var longDesc = $("#longDesc");
+    var editRowID = $("#editRowID");
+
+    if (isNotEmpty(name) && isNotEmpty(shortDesc) && isNotEmpty(longDesc)) {
+        $.ajax({
+           url: 'ajax.php',
+           method: 'POST',
+           dataType: 'text',
+           data: {
+               key: key,
+               name: name.val(),
+               shortDesc: shortDesc.val(),
+               longDesc: longDesc.val(),
+               rowID: editRowID.val()
+           }, success: function (response) {
+               if (response != "success"){
+
+                   alert(response);
+                   $('#tableManager').modal('hide');// Desaparece o modal
+               }else {
+                   $("#country_"+editRowID.val()).html(name.val());
+                   name.val('');
+                   shortDesc.val('');
+                   longDesc.val('');
+                   $("#tableManager").modal('hide'); 
+                   $("#manageBtn").attr('value', 'Add').attr('onclick', "manageData('addNew')");
+                  
+               }
+           }
+        });
+    }
+}
+
+function isNotEmpty(caller) {
+    if (caller.val() == '') {
+        caller.css('border', '1px solid red');
+        return false;
+    } else
+        caller.css('border', '');
+
+    return true;
+}
